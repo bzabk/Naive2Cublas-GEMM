@@ -15,7 +15,9 @@ namespace gemm::kernel {
 
         int const col = blockIdx.y * blockDim.y + threadIdx.y;
         int const row = blockIdx.x * blockDim.x + threadIdx.x;
-
+        // because threadIdx.x indexing works in a row major order, adjacent threads within the same warp
+        // read from memory addresses separated by a stride of K causing uncoalescing memory access
+        // It forces hardware to retrieve 32 seperate cache lines instead of a single transaction
         float local_result = 0.0f;
         if (row < M && col < N) {
             int const c_idx = N * row + col;
